@@ -9,6 +9,7 @@
 pip3 install pytest-playwright
 pip3 install playwright
 python3 -m playwright install  # 或者直接playwright install
+pip install requirements.txt
 ```
 
 
