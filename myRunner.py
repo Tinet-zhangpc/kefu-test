@@ -8,12 +8,16 @@
 '''
 import time
 import logging
+from lib2to3.pgen2 import driver
+
 import pytest
 from common.util import invoke
 from common.config import *
 from config import RunConfig
 from common.log import logger
-
+import allure
+import os
+from playwright.sync_api import sync_playwright
 
 
 def init_env(new_report):
@@ -22,6 +26,7 @@ def init_env(new_report):
     """
     os.mkdir(new_report)
     os.mkdir(new_report + "/image")
+
 
 def myrunner():
     # 1、运行脚本，生成allure数据
@@ -39,6 +44,7 @@ def myrunner():
                          "--junit-xml=" + xml_report,
                          "--self-contained-html",
                          "--maxfail", RunConfig.max_fail,
+                         # "--html=" + html_report,
                          "--reruns", RunConfig.rerun])
         if RunConfig.mode == "headful":
             pytest.main(["-s", "-v", "--headed", RunConfig.cases_path,
@@ -47,6 +53,7 @@ def myrunner():
                          "--junit-xml=" + xml_report,
                          "--self-contained-html",
                          "--maxfail", RunConfig.max_fail,
+                         # "--html=" + html_report,
                          "--reruns", RunConfig.rerun
                          ])
         logger.info("测试结束，生成测试报告💕 💕 💕 ！")
@@ -56,11 +63,14 @@ def myrunner():
 
     # 2、生成allure的html报告
     try:
+
         cmd = 'allure generate %s -o %s --clean' % (RunConfig.NEW_REPORT, RunConfig.NEW_REPORT+'/exportReport')
         print(cmd)
         print("开始执行报告生成")
         invoke(cmd)
         print("报告生成完毕")
+
+
     except Exception as e:
         print("报告生成失败，请重新执行", e)
         raise

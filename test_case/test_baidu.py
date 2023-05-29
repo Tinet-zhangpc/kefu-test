@@ -6,6 +6,7 @@ from page.baidu import BaiduElem
 import allure
 import pytest
 from common.config import  *
+from config import RunConfig
 
 @allure.feature('百度测试')
 class TestBaidu():
@@ -21,11 +22,12 @@ class TestBaidu():
         检查点：
         * 检查页面标题是否相等。
         """
+
         page.goto(base_url)
         page.type(BaiduElem.search_input, text="playwright")
         page.click(BaiduElem.search_button)
         sleep(2)
-        assert page.title() == "playwright_百度搜索"
+        assert page.title() == "playwright_百度搜"
 
     @allure.story("test002-保存设置")
     def test_baidu_002(self, page, base_url):
@@ -76,11 +78,13 @@ class TestBaidu():
     )
     @allure.story("test004-参数化")
     def test_baidu_004(self, name, search_key, page, base_url):
+        print(name + "========")
+        print(search_key + "=======______")
         page.goto(base_url)
         page.type(BaiduElem.search_input, search_key)
         page.click(BaiduElem.search_button)
         sleep(2)
-        assert page.title() == search_key + "_百度搜索"
+        assert page.title() == search_key + "_百度搜"
 
 
 
@@ -89,9 +93,9 @@ class TestBaidu():
         json_to_list(data_path + "/data_file.json")
     )
     @allure.story("test005-文件读取参数化")
-    def test_baidu_006(self, name, search_key, page, base_url):
+    def test_baidu_005(self, name, search_key, page, base_url):
         page.goto(base_url)
         page.type(BaiduElem.search_input, search_key)
         page.click(BaiduElem.search_button)
         sleep(2)
-        assert page.title() == search_key + "_百度搜索"
+        assert page.title() == search_key + "_百度搜"

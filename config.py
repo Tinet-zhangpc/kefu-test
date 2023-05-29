@@ -8,8 +8,9 @@ from common.config import *
 class RunConfig:
 
     # 运行测试用例的目录或文件
-    # cases_path = os.path.join(case_path, "test_case")
-    cases_path = os.path.join(case_path, "test_baidu.py")
+    # cases_path = os.path.join(case_path, "test_baidu.py")
+    cases_path = os.path.join(case_path, "test_kefu_session.py")
+    # cases_path = os.path.join(case_path, "test_kefu_login.py")
     #
 
     # 配置浏览器驱动类型(chromium, firefox, webkit)。
@@ -20,7 +21,10 @@ class RunConfig:
     mode = "headful"
 
     # 配置运行的 URL
-    baseUrl = "https://www.baidu.com"
+    baseUrl = "http://sandbox.kefu.easemob.com/"
+    customerServiceUrl = "http://077870.sandbox.kefu.easemob.com/mo/agent/webapp/chat"
+    visitorUrl = "http://077870.sandbox.kefu.easemob.com/webim/im.html?configId=cb44d44d-3c14-4ff7-a3f3-46b67f73c53a"
+
 
     # 失败重跑次数
     rerun = "0"

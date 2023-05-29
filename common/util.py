@@ -10,7 +10,7 @@ import datetime
 import subprocess
 
 """获取当前时间"""
-def get_nowtime():
+def get_nowtime() -> object:
     # now_time = datetime.datetime.now()
     now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     return now_time

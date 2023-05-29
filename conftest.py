@@ -5,6 +5,7 @@ import allure
 from slugify import slugify
 from common.config import *
 from playwright.sync_api import sync_playwright, expect
+import json
 
 
 
@@ -13,9 +14,11 @@ from playwright.sync_api import sync_playwright, expect
 def base_url():
     return RunConfig.baseUrl
 
-
-@pytest.mark.hookwrapper
+@pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    # 钩子的实现代码
+    ...
+
     """
     allure报告模版
     用于向测试用例中添加用例的开始时间、内部注释，和失败截图等.
@@ -59,21 +62,23 @@ def capture_screenshots(case_name, page):
         page.screenshot(path=image_dir)
 #     context.close()
 
+
 @pytest.fixture(scope="class")
 def page():
     with sync_playwright() as play:
         if os.getenv("DOCKER_RUN") or os.getenv("GITHUB_RUN"):
             browser = play.chromium.launch(headless=True, args=["--no-sandbox"])
         else:
-            browser = play.chromium.launch(headless=False)
+            browser = play.chromium.launch(headless=True)
         permissions = ["clipboard-read", "clipboard-write"]
-        context = browser.new_context(permissions=permissions)
+        context = browser.new_context(permissions=permissions, storage_state="auth/login.json")
         # 录制日志
         context.tracing.start(screenshots=True, snapshots=True, sources=True)
         page = context.new_page()
         yield page
         # 保存日志
         context.tracing.stop(path="trace.zip")
+
         context.close()
         browser.close()
 
