@@ -1,3 +1,5 @@
+import re
+
 import allure
 from time import sleep
 from common.util import get_nowtime
@@ -13,6 +15,8 @@ class TestSession:
 
     # 标识会话用户昵称
     userName = None
+    # 标识会话用户发送的数据
+    pageVisitorTime = None
 
     @allure.title("会话自动接入")
     def test_001(self, page):
@@ -37,8 +41,10 @@ class TestSession:
             page1 = page.context.new_page()
             page1.goto(visitor_url)
             page1.get_by_placeholder("点击输入内容...").click()
-            pageVisitorTime = get_nowtime()
-            page1.get_by_placeholder("点击输入内容...").fill(pageVisitorTime)
+            # pageVisitorTime = get_nowtime()
+            self.__class__.pageVisitorTime = get_nowtime()
+            print(self.pageVisitorTime)
+            page1.get_by_placeholder("点击输入内容...").fill(self.pageVisitorTime)
             # 网络等待时间 不一定这么久
             sleep(3)
             page1.get_by_placeholder("点击输入内容...").press("Enter")
@@ -47,7 +53,7 @@ class TestSession:
             sleep(3)
             expect(page1.get_by_text("会话创建成功")).not_to_be_empty()
             expect(page1.get_by_text("会话已被客服接起")).not_to_be_empty()
-            expect(page.get_by_text(pageVisitorTime)).not_to_be_empty()
+            expect(page.get_by_text(self.pageVisitorTime)).not_to_be_empty()
 
     @allure.title("客服发送消息")
     def test_002(self, page):
@@ -55,8 +61,9 @@ class TestSession:
         检查点：
         * 1. 客服端消息发送成功校验访客端新增消息访客服送时间戳一致
         """
-        self.userName
         page.goto(customer_service_url)
+        # 等待页面加载完成
+        # page.wait_for_load_state("networkidle")
         with allure.step("客服端输入框输入“当前时间戳”，点击发送按钮"):
 
             pageCustomerServiceTime = get_nowtime()
@@ -65,10 +72,10 @@ class TestSession:
             page.get_by_placeholder("请输入...").fill(pageCustomerServiceTime)
             sleep(3)
             page.get_by_placeholder("请输入...").press("Enter")
-            element = page.get_by_placeholder("昵称", exact=True)
-            element.click()
-            userName = element.get_attribute("value")
-            print(userName)
+            # 使用选择器定位元素并获取 value 值
+            self.__class__.userName = page.input_value('input[name="nickname"]')
+            print(self.userName)
+            print(self.__class__.userName)
         with allure.step("返回客户端页面"):
             page.goto(visitor_url)
         with allure.step("断言"):
@@ -132,30 +139,113 @@ class TestSession:
             expect(page.get_by_text("会话已结束")).not_to_be_empty()
         page.pause()
 
-    @allure.title("验证历史会话详情")
+    @allure.title("验证历史会话新增")
     def test_005(self, page):
         """
         1.校验历史会话记录列表新增一条访客昵称一致的数据
         2.校验客户信息记录列表新增一条访客昵称一致的数据
         3.校验基础质检记录列表新增一条访客昵称一致的数据
         """
-        pass
+        print(self.__class__.userName)
         print(self.userName)
+        page.pause()
         page.goto(manage_index_url)
         sleep(5)
         page.get_by_text("历史", exact=True).click()
         with allure.step("进入会话记录"):
             page.get_by_title("会话记录").click()
+            sleep(3)
+            page.pause()
         with allure.step("断言: 校验历史会话记录列表新增一条访客昵称一致的数据"):
-            expect(page.get_by_text(self.userName)).not_to_be_empty()
+            expect(page.locator("#em-history").get_by_text(self.userName)).not_to_be_empty()
         with allure.step("进入客户信息/自定义筛选条件"):
             page.get_by_title("客户信息").click()
             page.get_by_text("自定义筛选条件").click()
+            sleep(3)
         with allure.step("断言: 校验客户信息记录列表新增一条访客昵称一致的数据"):
-            expect(page.get_by_text(self.userName)).not_to_be_empty()
+            expect(page.locator("#em-visitors").get_by_text(self.userName)).not_to_be_empty()
         with allure.step("进入会话记录"):
             page.locator("[id=\"single-spa-application\\:\\@kefu\\/pt-layout\"]").get_by_text("质检", exact=True).click()
-            page.get_by_text("会话质检", exact=True).click()
             page.get_by_title("基础质检").click()
+            sleep(3)
         with allure.step("断言: 校验基础质检记录列表新增一条访客昵称一致的数据"):
-            expect(page.get_by_text(self.userName)).not_to_be_empty()
+            expect(page.locator("#em-qualitycheck").get_by_text(self.userName)).not_to_be_empty()
+
+    @allure.title("验证历史会话详情")
+    def test_006(self, page):
+        """
+        1.校验历史会话记录详情中有数据
+        """
+        print(self.__class__.userName)
+        page.goto(manage_index_url)
+        sleep(5)
+        page.get_by_text("历史", exact=True).click()
+        with allure.step("进入会话记录"):
+            page.get_by_title("会话记录").click()
+            sleep(3)
+        with allure.step("进入会话记录详情"):
+            page.locator("#em-history").get_by_text(self.userName).click()
+            sleep(3)
+        with allure.step("断言: 校验历史会话记录详情中有数据"):
+            page.input_value('input[name="nickname"]')
+            assert page.input_value('input[name="nickname"]') != '', "输入框的值不能为空"
+            expect(page.get_by_text(self.pageVisitorTime)).not_to_be_empty()
+
+    @allure.title("验证客户详情并修改")
+    def test_007(self, page):
+        """
+        1.校验返回列表名字项数据正确
+        """
+        print(self.__class__.userName)
+        page.goto(manage_index_url)
+        with allure.step("进入历史"):
+            page.get_by_text("历史", exact=True).click()
+            page.get_by_title("客户信息").click()
+            page.locator("#em-visitors").get_by_text(self.userName).click()
+            page.get_by_placeholder("真实姓名").click()
+            page.get_by_placeholder("真实姓名").press("Meta+a")
+            page.get_by_placeholder("真实姓名").fill("name")
+            page.get_by_placeholder("真实姓名").press("Enter")
+            page.locator(".button-close > .font-close").click()
+        page.pause()
+        # 重新加载页面
+        with allure.step("重新加载页面"):
+            page.reload()
+        sleep(5)
+        print(self.userName)
+        element = page.get_by_role("listitem").filter(has_text=self.userName)
+        # 或者判断元素内是否包含指定的文本内容
+        print(element.inner_text())
+        is_contain_name = 'name' in element.inner_text()
+        print(is_contain_name)
+        page.pause()
+        with allure.step("断言: 校验返回列表名字项数据正确"):
+            assert is_contain_name
+
+    @allure.title("基础质检评分")
+    def test_008(self, page):
+        """
+        1.校验返回列表名字项数据正确
+        """
+        print(self.__class__.userName)
+        page.goto(manage_index_url)
+        with allure.step("进入质检内容"):
+            page.locator("[id=\"single-spa-application\\:\\@kefu\\/pt-layout\"]").get_by_text("质检", exact=True).click()
+            page.get_by_title("基础质检").click()
+        with allure.step("编辑评分"):
+            page.locator("#em-qualitycheck").get_by_text(self.userName).click()
+            page.locator("span").filter(has_text=re.compile(r"^质检$")).click()
+            page.locator("span").filter(has_text=re.compile(r"^评分$")).click()
+            page.get_by_placeholder("0-5").click()
+            page.get_by_placeholder("0-5").press("Meta+a")
+            page.get_by_placeholder("0-5").fill("2")
+            page.get_by_text("保存", exact=True).click()
+            page.locator(".em-chat-readonly-detail > div > a").first.click()
+            element = page.get_by_role("listitem").filter(has_text=self.userName)
+            # 或者判断元素内是否包含指定的文本内容
+            print(element.inner_text())
+        is_contain_name = '2' in element.inner_text()
+        print(is_contain_name)
+        page.pause()
+        with allure.step("断言: 校验返回列表评分项数据正确"):
+            assert is_contain_name

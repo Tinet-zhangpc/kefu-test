@@ -8,10 +8,9 @@ from common.config import *
 
 class RunConfig:
     # 运行测试用例的目录或文件
-    # cases_path = os.path.join(case_path, "test_baidu.py")
-    # cases_path = os.path.join(case_path, "test_kefu_session.py")
-    cases_path = os.path.join(case_path, "test_kefu_login.py")
-    #
+    cases_path = os.path.join(case_path, "test_kefu_session.py")
+    # cases_path = os.path.join(case_path, "test_kefu_login.py")
+
 
     # 配置浏览器驱动类型(chromium, firefox, webkit)。
     browser = "chromium"
