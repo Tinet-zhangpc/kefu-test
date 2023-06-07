@@ -5,7 +5,7 @@ from time import sleep
 from common.util import get_nowtime
 from playwright.sync_api import expect
 from common.page_url import *
-
+from datetime import datetime, timedelta
 
 @allure.feature('基础会话')
 @allure.testcase(customer_service_url, '测试用例链接-客服端')
@@ -267,6 +267,175 @@ class TestSession:
         with allure.step("断言: 校验返回列表评分项数据正确"):
             assert is_contain_name
 
+    @allure.title("工作量筛选")
+    def test_009(self, page):
+        """
+            1.客服端点击管理员模式 统计>在线客服>工作量，点击筛选排序，按照客服接起会话时间-1秒，+1秒进行筛选
+            """
+        print(self.__class__.userName)
+        print(self.start_time)
+        print(self.pick_up_time)
+        dt = datetime.strptime(self.pick_up_time, '%Y-%m-%d %H:%M:%S')
+
+        hour = dt.hour  # 提取小时
+        minute = dt.minute  # 提取分钟
+        second = dt.second - 1  # 提取秒钟
+
+        page.goto(manage_index_url)
+        with allure.step("进入筛选界面"):
+            page.get_by_text("统计", exact=True).click()
+            page.get_by_title("工作量").click()
+            page.get_by_text("筛选排序").click()
+        with allure.step("配置筛选条件"):
+            page.locator("span").filter(has_text="本周").locator("label").click()
+            page.get_by_role("listitem", name="今天").click()
+            page.get_by_placeholder("开始时间").click()
+            page.get_by_role("definition").filter(has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).\
+                get_by_role( "combobox").select_option(str(hour))
+            page.get_by_role("combobox").nth(1).select_option(str(minute))
+            page.get_by_role("combobox").nth(2).select_option(str(second))
+
+            second = dt.second + 1  # 提取秒钟
+            page.get_by_placeholder("结束时间").click()
+            page.get_by_role("definition").filter(has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).\
+                get_by_role("combobox").select_option(str(hour))
+            page.get_by_role("combobox").nth(1).select_option(str(minute))
+            page.get_by_role("combobox").nth(2).select_option(str(second))
+            page.pause()
+            page.get_by_text("筛选查询").click()
+        element = page.get_by_role("row", name="结束会话数 ꀓ 1 条", exact=True).get_by_text("1")
+        print(element)
+        with allure.step("断言: 校验返回列表各项数据正确"):
+            expect(element).not_to_be_empty()
+        page.pause()
+
+    @allure.title("工作质量筛选")
+    def test_010(self, page):
+        """
+        1.客服端点击管理员模式 统计>在线客服>工作量，点击筛选排序，按照客服接起会话时间-1秒，+1秒进行筛选
+        """
+        print(self.__class__.userName)
+        print(self.start_time)
+        print(self.pick_up_time)
+        dt = datetime.strptime(self.pick_up_time, '%Y-%m-%d %H:%M:%S')
+
+        hour = dt.hour  # 提取小时
+        minute = dt.minute  # 提取分钟
+        second = dt.second - 1  # 提取秒钟
+
+        page.goto(manage_index_url)
+        with allure.step("进入筛选界面"):
+            page.get_by_text("统计", exact=True).click()
+            page.get_by_title("工作质量").click()
+        with allure.step("进入筛选界面"):
+            page.locator("#em-workquality").get_by_text("筛选排序").click()
+            page.locator("span").filter(has_text="本周").locator("label").click()
+        page.get_by_role("listitem", name="今天").click()
+        page.pause()
+        page.get_by_placeholder("开始时间").click()
+        page.get_by_role("definition").filter(
+            has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).get_by_role(
+            "combobox").select_option(str(hour))
+        page.get_by_role("combobox").nth(1).select_option(str(minute))
+        page.get_by_role("combobox").nth(2).select_option(str(second))
+        second = dt.second + 1  # 提取秒钟
+        page.get_by_placeholder("结束时间").click()
+        page.get_by_role("definition").filter(
+            has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).get_by_role(
+            "combobox").select_option(str(hour))
+        page.get_by_role("combobox").nth(1).select_option(str(minute))
+        page.get_by_role("combobox").nth(2).select_option(str(second))
+        page.pause()
+        page.get_by_text("筛选查询").click()
+        sleep(3)
+
+        with allure.step("断言: 校验返回列表各项数据正确"):
+            element = page.get_by_role("cell", name="1分")
+            expect(element).not_to_be_empty()
+
+    @allure.title("访客统计筛选")
+    def test_011(self, page):
+        """
+        1.客服端点击管理员模式 统计>在线客服>工作量，点击筛选排序，按照客服接起会话时间-1秒，+1秒进行筛选
+        """
+        print(self.__class__.userName)
+        print(self.start_time)
+        print(self.pick_up_time)
+        dt = datetime.strptime(self.start_time, '%Y-%m-%d %H:%M:%S')
+
+        hour = dt.hour  # 提取小时
+        minute = dt.minute  # 提取分钟
+        second = dt.second - 1  # 提取秒钟
+
+        page.goto(manage_index_url)
+        page.get_by_text("统计", exact=True).click()
+        page.get_by_title("工作质量").click()
+        page.locator("#em-visitorSource").get_by_text("筛选排序").click()
+        page.locator("span").filter(has_text="本周").locator("label").click()
+        page.get_by_role("listitem", name="今天").click()
+        page.pause()
+        page.get_by_placeholder("开始时间").click()
+        page.get_by_role("definition").filter(
+            has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).get_by_role(
+            "combobox").select_option(str(hour))
+        page.get_by_role("combobox").nth(1).select_option(str(minute))
+        page.get_by_role("combobox").nth(2).select_option(str(second))
+        second = dt.second + 1  # 提取秒钟
+        page.get_by_placeholder("结束时间").click()
+        page.get_by_role("definition").filter(
+            has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).get_by_role(
+            "combobox").select_option(str(hour))
+        page.get_by_role("combobox").nth(1).select_option(str(minute))
+        page.get_by_role("combobox").nth(2).select_option(str(second))
+        page.pause()
+        page.get_by_text("筛选查询").click()
+        sleep(3)
+
+        with allure.step("断言: 校验返回列表各项数据正确"):
+            element = page.get_by_role("cell", name="独立访客数 ꀓ 1")
+            expect(element).not_to_be_empty()
+
+    @allure.title("排队统计筛选")
+    def test_011(self, page):
+        """
+        1.客服端点击管理员模式 统计>在线客服>工作量，点击筛选排序，按照客服接起会话时间-1秒，+1秒进行筛选
+        """
+        print(self.__class__.userName)
+        print(self.start_time)
+        print(self.pick_up_time)
+        dt = datetime.strptime(self.start_time, '%Y-%m-%d %H:%M:%S')
+
+        hour = dt.hour  # 提取小时
+        minute = dt.minute  # 提取分钟
+        second = dt.second - 1  # 提取秒钟
+
+        page.goto(manage_index_url)
+        page.get_by_text("统计", exact=True).click()
+        page.get_by_text("排队统计").click()
+        page.locator("#em-queue").get_by_text("筛选排序").click()
+        page.locator("span").filter(has_text="本周").locator("label").click()
+        page.get_by_role("listitem", name="今天").click()
+        page.pause()
+        page.get_by_placeholder("开始时间").click()
+        page.get_by_role("definition").filter(
+            has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).get_by_role(
+            "combobox").select_option(str(hour))
+        page.get_by_role("combobox").nth(1).select_option(str(minute))
+        page.get_by_role("combobox").nth(2).select_option(str(second))
+        second = dt.second + 1  # 提取秒钟
+        page.get_by_placeholder("结束时间").click()
+        page.get_by_role("definition").filter(
+            has_text=re.compile(r"^000102030405060708091011121314151617181920212223$")).get_by_role(
+            "combobox").select_option(str(hour))
+        page.get_by_role("combobox").nth(1).select_option(str(minute))
+        page.get_by_role("combobox").nth(2).select_option(str(second))
+        page.pause()
+        page.get_by_text("筛选查询").click()
+        sleep(3)
+
+        with allure.step("断言: 校验返回列表各项数据正确"):
+            element = page.get_by_role("cell", name="1").first
+            expect(element).not_to_be_empty()
 
 
 
