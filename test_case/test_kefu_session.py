@@ -17,6 +17,13 @@ class TestSession:
     userName = None
     # 标识会话用户发送的数据
     pageVisitorTime = None
+    # 发起时间
+    start_time = None
+    # 接起时间
+    pick_up_time = None
+
+
+
 
     @allure.title("会话自动接入")
     def test_001(self, page):
@@ -190,6 +197,17 @@ class TestSession:
             page.input_value('input[name="nickname"]')
             assert page.input_value('input[name="nickname"]') != '', "输入框的值不能为空"
             expect(page.get_by_text(self.pageVisitorTime)).not_to_be_empty()
+        with allure.step("记录: 进入记录标记时间"):
+            page.get_by_text("记录", exact=True).click()
+            page.pause()
+            element = page.get_by_role("listitem").filter(has_text="发起会话")
+            # 提取时间文本
+            self.__class__.start_time = element.inner_text().splitlines()[1]
+            print(self.start_time)  # 输出文本内容
+            element = page.get_by_role("listitem").filter(has_text="将待接入会话手动接起")
+            # 提取时间文本
+            self.__class__.pick_up_time = element.inner_text().splitlines()[1]
+            print(self.pick_up_time)  # 输出文本内容
 
     @allure.title("验证客户详情并修改")
     def test_007(self, page):
@@ -212,7 +230,6 @@ class TestSession:
         with allure.step("重新加载页面"):
             page.reload()
         sleep(5)
-        print(self.userName)
         element = page.get_by_role("listitem").filter(has_text=self.userName)
         # 或者判断元素内是否包含指定的文本内容
         print(element.inner_text())
@@ -249,3 +266,7 @@ class TestSession:
         page.pause()
         with allure.step("断言: 校验返回列表评分项数据正确"):
             assert is_contain_name
+
+
+
+
