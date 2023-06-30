@@ -35,8 +35,8 @@ def myrunner():
         now_time = time.strftime("%Y_%m_%d_%H_%M_%S")
         RunConfig.NEW_REPORT = os.path.join(report_path, now_time)
         init_env(RunConfig.NEW_REPORT)
-        html_report = os.path.join(RunConfig.NEW_REPORT, "report.html")
-        xml_report = os.path.join(RunConfig.NEW_REPORT, "junit-xml.xml")
+        # html_report = os.path.join(RunConfig.NEW_REPORT, "report.html")
+        # xml_report = os.path.join(RunConfig.NEW_REPORT, "junit-xml.xml")
         if RunConfig.mode == "headless":
             pytest.main(["-s", "-v", RunConfig.cases_path,
                          "--browser=" + RunConfig.browser,
@@ -63,7 +63,6 @@ def myrunner():
 
     # 2、生成allure的html报告
     try:
-
         cmd = 'allure generate %s -o %s --clean' % (RunConfig.NEW_REPORT, RunConfig.NEW_REPORT+'/exportReport')
         print(cmd)
         print("开始执行报告生成")

@@ -25,7 +25,7 @@ def pytest_runtest_makereport(item, call):
     """
     if call.when == "call":
         # 失败的情况下
-        if call.excinfo is not None and "page" in item.funcargs:
+        # if call.excinfo is not None and "page" in item.funcargs:
             from playwright.async_api import Page
             page: Page = item.funcargs["page"]
 
@@ -35,7 +35,7 @@ def pytest_runtest_makereport(item, call):
                 attachment_type=allure.attachment_type.PNG
             )
 
-            # # 向报告中添加视频
+            # 向报告中添加视频
             # video_path = page.video.path()
             # page.context.close()  # ensure video saved
             # allure.attach(
@@ -69,7 +69,7 @@ def page():
         if os.getenv("DOCKER_RUN") or os.getenv("GITHUB_RUN"):
             browser = play.chromium.launch(headless=True, args=["--no-sandbox"])
         else:
-            browser = play.chromium.launch(headless=False)
+            browser = play.chromium.launch(headless=False, slow_mo=1000)
         permissions = ["clipboard-read", "clipboard-write"]
         context = browser.new_context(permissions=permissions, storage_state="auth/login.json")
         # 录制日志
