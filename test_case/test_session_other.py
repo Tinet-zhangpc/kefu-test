@@ -264,6 +264,7 @@ class TestOther:
     @allure.title("添加公共常用语分类")
     def test_016(self, page):
         page.goto(manage_index_url)
+        page.pause()
         page.get_by_text("智能", exact=True).click()
         page.get_by_text("公共常用语").click()
         page.locator(".addPrase").click()
@@ -328,12 +329,12 @@ class TestOther:
         page.get_by_text("智能", exact=True).click()
         page.get_by_text("公共常用语").click()
         page.get_by_title("newUiTest").first.click()
-        page.get_by_text("UiCommonPhrase").first.click()
+        page.get_by_text("newUiCommonPhrase").first.click()
         page.locator(".right-list-item > .font-delete").click()
         page.get_by_text("删除", exact=True).click()
         page.reload()
         sleep(3)
-        element = page.query_selector('*:has-text("newUiTest")')
+        element = page.query_selector('*:has-text("newUiCommonPhrase")')
         print(element)
         with allure.step("断言"):
             assert element is None, "未删除成功"
@@ -355,6 +356,7 @@ class TestOther:
     @allure.title("添加客服知识语分类")
     def test_022(self, page):
         page.goto(manage_index_url)
+        page.pause()
         page.get_by_text("智能", exact=True).click()
         page.get_by_title("客服知识库").click()
         page.get_by_text("管理分类").click()
@@ -372,9 +374,8 @@ class TestOther:
         page.get_by_text("智能", exact=True).click()
         page.get_by_title("客服知识库").click()
         page.get_by_text("管理分类").click()
-        frame = page.main_frame
-        frame.get_by_text("UiTest").nth(4).click()
-        element = frame.get_by_title("修改").nth(1)
+        page.get_by_text("UiTest").nth(3).click()
+        element = page.get_by_title("修改").nth(3)
         print(element)
         element.click()
         page.get_by_role("textbox", name="输入分类名称").fill(self.newSessionPlugin)
@@ -440,9 +441,8 @@ class TestOther:
         page.get_by_text("智能", exact=True).click()
         page.get_by_title("客服知识库").click()
         page.get_by_text("管理分类").click()
-        frame = page.main_frame
-        frame.get_by_text("newUiTest").nth(1).click()
-        page.get_by_title("删除").nth(1).click()
+        page.get_by_text("UiTest").nth(3).click()
+        page.get_by_title("删除").nth(3).click()
         page.locator("div:nth-child(41) > div > div:nth-child(3) > span").first.click()
         element = page.query_selector('*:has-text("newUiTest")')
         print(element)

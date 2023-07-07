@@ -512,3 +512,162 @@ class TestSession:
             page.get_by_title("排队中会话").click()
         with allure.step("断言"):
             expect(page.locator("#em-wait").get_by_text("无数据")).not_to_be_empty()
+
+    @allure.title("客服发送表情消息")
+    def test_018(self, page):
+        """
+        检查点：
+        * 1. 访客端消息发送成功校验访客端出现'会话创建成功'
+          2. 校验访客端出现'会话已被客服接起'
+          3. 校验客服端新增消息与访客发送时间戳一致
+        """
+        page.goto(customer_service_url)
+        page.locator(".newagentfont-chatstate").click()
+        with allure.step("设置坐席状态-空闲"):
+            page.get_by_text("空闲").click()
+        with allure.step("设置坐席最大接待数=1"):
+            page.get_by_title("工作台设置").click()
+            page.get_by_role("spinbutton").get_by_role("textbox").click()
+            page.get_by_role("spinbutton").get_by_role("textbox").fill("1")
+            page.get_by_text("保存").click()
+        with allure.step("访客端输入框输入“当前时间戳”，点击发送按钮"):
+            page1 = page.context.new_page()
+            page1.goto(visitor_url)
+            page1.get_by_placeholder("点击输入内容...").click()
+            self.__class__.pageVisitorTime = get_nowtime()
+            print(self.pageVisitorTime)
+            page1.get_by_placeholder("点击输入内容...").fill(self.pageVisitorTime)
+            page1.get_by_placeholder("点击输入内容...").press("Enter")
+        with allure.step("断言"):
+            expect(page1.get_by_text("会话创建成功")).not_to_be_empty()
+            expect(page1.get_by_text("会话已被客服接起")).not_to_be_empty()
+            page1.close()
+            expect(page.get_by_text(self.pageVisitorTime)).not_to_be_empty()
+        page.goto(customer_service_url)
+        with allure.step("客服端输入框输入“当前时间戳”，点击发送按钮"):
+            page.get_by_title("表情").locator("span").click()
+            page.locator(".ui-itm-emogrid > img").first.click()
+            page.locator("#em-chat").get_by_text("发送", exact=True).click()
+        with allure.step("返回客户端页面"):
+            page.goto(visitor_url)
+        element = page.get_by_role('img')
+        print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
+
+    @allure.title("访客添加留言")
+    def test_019(self, page):
+        page.goto(visitor_url)
+        with allure.step("客服端输入框输入“当前时间戳”，点击发送按钮"):
+            page.get_by_title("留言").first.click()
+            self.__class__.pageVisitorTime = get_nowtime()
+            print(self.pageVisitorTime)
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("姓名").click()
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("姓名").fill(self.pageVisitorTime)
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("手机号").click()
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("手机号").fill("18000000000")
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("邮箱").click()
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("邮箱").fill("UiTest@qq.com")
+            page.frame_locator("#easemob-iframe-note").get_by_placeholder("请输入留言").fill("UiTestContent")
+            page.frame_locator("#easemob-iframe-note").locator("div").filter(has_text=re.compile(r"^留言$")).click()
+        with allure.step("返回客户端页面"):
+            page.goto(manage_index_url)
+            page.get_by_text("历史", exact=True).click()
+            page.get_by_title("留言").click()
+            element = page.get_by_text(self.pageVisitorTime)
+        print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
+
+    @allure.title("客服发送常用语")
+    def test_020(self, page):
+        page.goto(customer_service_url)
+        with allure.step("进入客服发送常用语"):
+            page.get_by_role("listitem", name="常用语").get_by_text("常用语").click()
+            page.get_by_role("heading", name="W 欢迎语：").locator("span").nth(1).click()
+            page.get_by_text("您好!很高兴为您服务，有什么可以为您效劳的。").click()
+            page.locator("#em-chat").get_by_text("发送", exact=True).click()
+        with allure.step("返回访客端页面"):
+            page.goto(visitor_url)
+            element = page.get_by_text("您好!很高兴为您服务，有什么可以为您效劳的。")
+        print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
+
+    @allure.title("客服发送知识库")
+    def test_021(self, page):
+        page.goto(customer_service_url)
+        with allure.step("进入客服发送知识库"):
+            page.get_by_text("展开").click()
+            page.get_by_role("listitem", name="知识库").get_by_text("知识库").click()
+            page.locator("#em-chat").get_by_title("用例测试勿删").click()
+            page.locator(".newagentfont-send").click()
+        with allure.step("返回访客端页面"):
+            page.goto(visitor_url)
+            element = page.get_by_text('用例测试勿删')
+            print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
+
+
+    @allure.title("客服添加会话标签")
+    def test_022(self, page):
+        """
+        检查点：
+        * 1. 客服端消息发送成功校验访客端新增消息访客服送时间戳一致
+        """
+        page.goto(customer_service_url)
+        page.reload()
+        with allure.step("进入客服添加会话标签"):
+            page.get_by_title("会话标签").first.click()
+            page.get_by_text("咨询").click()
+            page.get_by_text("功能咨询").click()
+            page.get_by_placeholder("添加备注").click()
+            page.get_by_placeholder("添加备注").fill("Uitest")
+            page.get_by_text("保存").click()
+            element = page.locator(".em-summary-tag")
+            print(element)
+            page.get_by_text("会话备注")
+            print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
+
+    @allure.title("客服进行会话转接")
+    def test_023(self, page):
+        page.goto(customer_service_url)
+        with allure.step("进入客服进行会话转接"):
+            page.get_by_title("转接").click()
+            page.get_by_text("uitest2@easemob.com").click()
+            page.get_by_text("转接", exact=True).click()
+        with allure.step("返回管理员端页面"):
+            page.goto(manage_index_url)
+            page.get_by_text("监控", exact=True).click()
+            page.get_by_text("进行中会话").click()
+            element = page.get_by_title("uitest2@easemob.com")
+            print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
+
+    @allure.title("会话结束自动发送满意度邀请")
+    def test_024(self, page):
+        """
+        检查点：
+        * 1. 客服端消息发送成功校验访客端新增消息访客服送时间戳一致
+        """
+        page.goto(manage_index_url)
+        with allure.step("进入会话结束自动发送满意度邀请"):
+            page.get_by_text("监控", exact=True).click()
+            page.get_by_title("进行中会话").click()
+            page.locator("#em-session").get_by_title("结束会话").first.locator("span").click()
+            page.get_by_text("关闭", exact=True).click()
+            element = page.locator("#em-session").get_by_text("无数据")
+            print(element)
+            with allure.step("断言"):
+                assert element is not None, "元素不存在"
+        with allure.step("返回访客端页面"):
+            page.goto(visitor_url)
+            element = page.get_by_text("请对我的服务做出评价")
+            # page.locator("div").filter(has_text=re.compile(r"^服务评价$")).locator("i").click()
+            print(element)
+        with allure.step("断言"):
+            assert element is not None, "元素不存在"
