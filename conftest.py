@@ -69,7 +69,7 @@ def page():
         if os.getenv("DOCKER_RUN") or os.getenv("GITHUB_RUN"):
             browser = play.chromium.launch(headless=True, args=["--no-sandbox"])
         else:
-            browser = play.chromium.launch(headless=False, slow_mo=1000)
+            browser = play.chromium.launch(headless=False, slow_mo=1500)
         permissions = ["clipboard-read", "clipboard-write"]
         context = browser.new_context(permissions=permissions, storage_state="auth/login.json")
         # 录制日志

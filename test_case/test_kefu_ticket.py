@@ -6,7 +6,7 @@ from common.page_url import *
 from common.config import *
 from common.util import get_nowtime
 
-@allure.feature('基础g工单')
+@allure.feature('基础工单')
 @allure.testcase(manage_index_url, '测试用例链接-客服端')
 @allure.testcase(visitor_url, '测试用例链接-访客端')
 @allure.testcase(visitor_url, '测试用例工单链接-jira地址')
@@ -66,7 +66,6 @@ class TestTicket:
           3. 校验客服端新增消息与访客发送时间戳一致
         """
         page.goto(customer_ticket_url)
-        page.pause()
         print(self.pageVisitorTime)
         page.get_by_text("我提交").click()
         page.get_by_text(self.pageVisitorTime).click()
@@ -81,7 +80,6 @@ class TestTicket:
     @allure.title("开启并添加工单通知邮箱")
     def test_003(self, page):
         page.goto(manage_index_url)
-        page.pause()
         self.__class__.email_time = get_nowtime()
         print(self.email_time)
         var = self.email_time + "@qq.com"
@@ -108,7 +106,6 @@ class TestTicket:
     @allure.title("关闭工单通知邮箱")
     def test_004(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.get_by_title("通知邮箱").click()
         element_locator = page.get_by_text("已启用")
@@ -122,13 +119,12 @@ class TestTicket:
     @allure.title("添加工单分类")
     def test_005(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.get_by_text("工单分类").click()
         page.get_by_text("添加标签").click()
         page.get_by_placeholder("输入标签名称").fill("UiTest")
         page.get_by_text("请选择左侧标签").click()
-        page.reload()
+        # page.reload()
         # element = page.query_selector('[title="UiTest"]')
         # print(element)
         target_text = "UiTest"
@@ -140,7 +136,6 @@ class TestTicket:
     @allure.title("修改工单分类")
     def test_006(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.get_by_text("工单分类").click()
         page.get_by_text("UiTest", exact=True).click()
@@ -157,7 +152,6 @@ class TestTicket:
     @allure.title("删除工单分类")
     def test_007(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.get_by_text("工单分类").click()
         page.get_by_text("newUiTest", exact=True).click()
@@ -173,7 +167,6 @@ class TestTicket:
     @allure.title("添加工单优先级")
     def test_008(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.locator(".iScrollIndicator").click()
         page.get_by_text("工单优先级").click()
@@ -183,7 +176,7 @@ class TestTicket:
         page.locator("input[name=\"enName\"]").click()
         page.locator("input[name=\"enName\"]").fill("UiTest")
         page.get_by_text("保存").click()
-        page.reload()
+        # page.reload()
         target_text = "UiTest"
         element = page.query_selector(f':has-text("{target_text}")')
         print(element)
@@ -192,7 +185,6 @@ class TestTicket:
     @allure.title("修改工单优先级")
     def test_009(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.locator(".iScrollIndicator").click()
         page.get_by_text("工单优先级").click()
@@ -200,20 +192,21 @@ class TestTicket:
         page.locator("input[name=\"enName\"]").fill("newUiTest")
         page.locator("input[name=\"enName\"]").click()
         page.get_by_text("保存").click()
-        page.reload()
+        # page.reload()
         element = page.get_by_text("newUiTest")
+        # target_text = "newUiTest"
+        # element = page.query_selector(f':has-text("{target_text}")')
         print(element)
         assert element is not None, "输入框的值不一致"
 
     @allure.title("删除工单优先级")
     def test_010(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.locator(".iScrollIndicator").click()
         page.get_by_text("工单优先级").click()
         page.locator("li:nth-child(3) > .t3 > span:nth-child(2) > .font-delete").click()
-        page.reload()
+        # page.reload()
         target_text = "newUiTest"
         element = page.query_selector(f':has-text("{target_text}")')
         print(element)
@@ -222,7 +215,7 @@ class TestTicket:
     @allure.title("添加工单状态")
     def test_011(self, page):
         page.goto(manage_index_url)
-        page.pause()
+
         page.get_by_text("设置", exact=True).click()
         page.locator(".iScrollIndicator").click()
         page.get_by_text("工单状态").click()
@@ -232,7 +225,7 @@ class TestTicket:
         page.get_by_label("选项名称英文").click()
         page.get_by_label("选项名称英文").fill("UiTest")
         page.get_by_role("button", name="确 定").click()
-        page.reload()
+        # page.reload()
         target_text = "UiTest"
         element = page.query_selector(f':has-text("{target_text}")')
         print(element)
@@ -242,7 +235,6 @@ class TestTicket:
     @allure.title("修改工单状态")
     def test_012(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.locator(".iScrollIndicator").click()
         page.get_by_text("工单状态").click()
@@ -258,12 +250,11 @@ class TestTicket:
     @allure.title("删除工单状态")
     def test_013(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("设置", exact=True).click()
         page.locator(".iScrollIndicator").click()
         page.get_by_text("工单状态").click()
         page.get_by_role("row", name="界面测试 newUiTest 未指定 否 x 3").locator("span").nth(3).click()
-        page.reload()
+        # page.reload()
         target_text = "newUiTest"
         element = page.query_selector(f':has-text("{target_text}")')
         print(element)

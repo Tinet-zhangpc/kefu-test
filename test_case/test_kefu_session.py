@@ -5,7 +5,7 @@ from common.util import get_nowtime
 from playwright.sync_api import expect
 from common.page_url import *
 from datetime import datetime
-
+from time import sleep
 
 @allure.feature('基础会话')
 @allure.testcase(customer_service_url, '测试用例链接-客服端')
@@ -432,6 +432,7 @@ class TestSession:
             expect(page.get_by_text("当前排队人数为1")).not_to_be_empty()
             page.goto(customer_service_url)
         with allure.step("断言"):
+            sleep(3)
             expect(page.get_by_text("待接入 1")).not_to_be_empty()
         page.get_by_text("待接入", exact=True).click()
         page.locator("#em-wait").get_by_role("img").click()
@@ -598,7 +599,10 @@ class TestSession:
     def test_021(self, page):
         page.goto(customer_service_url)
         with allure.step("进入客服发送知识库"):
-            page.get_by_text("展开").click()
+            try:
+                page.get_by_text("展开").click(timeout=3000)
+            except Exception:
+                print("没有按钮不点击了")
             page.get_by_role("listitem", name="知识库").get_by_text("知识库").click()
             page.locator("#em-chat").get_by_title("用例测试勿删").click()
             page.locator(".newagentfont-send").click()

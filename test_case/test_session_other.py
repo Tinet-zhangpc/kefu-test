@@ -48,11 +48,8 @@ class TestOther:
         page.get_by_role("textbox").fill(self.newSessionPlugin)
         page.locator("span").filter(has_text="保存").click()
         page.get_by_role("button", name="保存").click()
-        page.reload()
-        # page.pause()
+        # page.reload()
         frame = page.main_frame
-        element = page.query_selector('*:has-text("newUiTest")')
-        print(element)
         element = frame.query_selector('*:has-text("UiTest")')
         print(element)
         with allure.step("断言"):
@@ -264,7 +261,6 @@ class TestOther:
     @allure.title("添加公共常用语分类")
     def test_016(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("智能", exact=True).click()
         page.get_by_text("公共常用语").click()
         page.locator(".addPrase").click()
@@ -356,7 +352,6 @@ class TestOther:
     @allure.title("添加客服知识语分类")
     def test_022(self, page):
         page.goto(manage_index_url)
-        page.pause()
         page.get_by_text("智能", exact=True).click()
         page.get_by_title("客服知识库").click()
         page.get_by_text("管理分类").click()

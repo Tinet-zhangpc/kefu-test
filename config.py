@@ -26,7 +26,8 @@ class RunConfig:
     mode = "headful"
 
     # 配置运行的 URL
-    baseUrl = "http://sandbox.kefu.easemob.com/"
+    # baseUrl = "http://sandbox.kefu.easemob.com/"
+    baseUrl = "http://kefu.easemob.com/"
 
     # 失败重跑次数
     rerun = "0"
